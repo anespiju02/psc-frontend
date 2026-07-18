@@ -1,0 +1,275 @@
+<div class="psc-container">
+
+  <!-- Encabezado Institucional Híbrido -->
+  <div class="psc-header">
+    <div class="header-text">
+      <h2>Pequeño Sistema Cognitivo (PSC)</h2>
+      <small>Plataforma de Simbiosis Epistemológica e Ingeniería del Conocimiento MVCS</small>
+    </div>
+
+    <!-- Barra de Acciones Superior -->
+    <div class="action-bar-top">
+      <!-- 🔄 NUEVO: Botón de actualización de caché in-memory -->
+      @if (vistaActiva() === 'OPERATIVO') {
+      <button class="btn-refresh" (click)="cargarDatosConsolidados()" [attr.disabled]="loading() ? true : null">
+        🔄 Actualizar Datos
+      </button>
+      }
+
+      <div class="view-switcher-group">
+        <button class="btn-switch" [class.active-operative]="vistaActiva() === 'OPERATIVO'"
+          (click)="cambiarVista('OPERATIVO')">
+          👁️ Portal Operativo (Monitoreo)
+        </button>
+        <button class="btn-switch" [class.active-admin]="vistaActiva() === 'ADMINISTRACION'"
+          (click)="cambiarVista('ADMINISTRACION')">
+          ⚙️ Portal de Administración Cognitiva
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (vistaActiva() === 'OPERATIVO') {
+
+  <!-- VISTA A: PORTAL OPERATIVO -->
+  <div class="kpi-row">
+    <div class="kpi-card bg-critico">
+      <h5>Obras en Riesgo Crítico (Cajamarca & La Libertad)</h5>
+      <h2>{{ datosConsolidado()?.obras_riesgo_critico ?? 0 }} Proyectos</h2>
+    </div>
+    <div class="kpi-card bg-alerta">
+      <h5>Requieren Intervención Inmediata (Fase ACT-R Production)</h5>
+      <h2>{{ datosConsolidado()?.requieren_intervencion_inmediata ?? 0 }} Alertas Rojas</h2>
+    </div>
+  </div>
+
+  <!-- Layout en Rejilla Grid de Dos Columnas -->
+  <div class="psc-grid-layout">
+    <!-- Módulo 1: Tablero de Semáforo Cognitivo (Mapa Interactivo Nativo) -->
+    <div class="psc-card">
+      <h4>📌 Módulo 1: Tablero de Semáforo Cognitivo</h4>
+      <p class="text-muted small">Representación geo-perceptual de inversiones activas en Cajamarca y La Libertad.</p>
+
+      <div class="map-mock">
+        <div class="region-panel-north"></div>
+        <div class="region-label-cajamarca">▲ SECTOR NORTE: CAJAMARCA</div>
+        <div class="region-label-libertad">▼ SECTOR SUR: LA LIBERTAD</div>
+
+        @for (p of datosConsolidado()?.proyectos; track p.cui) {
+        <!-- Contenedor del Marcador Geográfico Relativo -->
+        <div class="geo-marker-pin" (click)="seleccionarObraParaDiagnostico(p.cui)"
+          [class.active-selected]="proyectoSeleccionado()?.cui === p.cui" [ngStyle]="{
+           'left': ((p.longitud + 79.5) * 230) + 'px', 
+           'top': ((p.latitud + 6.5) * -210) + 'px',
+           'background-color': p.semaforo === 'ROJO' ? '#dc3545' : p.semaforo === 'NARANJA' ? '#fd7e14' : '#ffc107'
+         }">
+
+          <!-- Efecto Onda de Tensión -->
+          @if (p.score_riesgo >= 60) {
+          <span class="radar-pulse" [ngStyle]="{'border-color': p.semaforo === 'ROJO' ? '#dc3545' : '#fd7e14'}"></span>
+          }
+
+          <!-- 👈 El Tooltip anidado como un nodo hijo, controlado por el hover de SASS -->
+          <span class="geo-tooltip">
+            <strong>CUI: {{ p.cui }}</strong>
+            Score de Riesgo: {{ p.score_riesgo }} pts<br>
+            <span style="opacity: 0.8;">{{ p.nombre.substring(0, 50) }}...</span>
+          </span>
+
+        </div>
+        }
+      </div>
+    </div>
+
+    <!-- Módulo 2: Cola de Alertas Críticas (Ranking) -->
+    <div class="psc-card">
+      <h4>⚠️ Módulo 2: Obras con Alertas de Riesgo</h4>
+      <div class="table-responsive-scroll">
+        <table class="psc-table">
+          <thead>
+            <tr>
+              <th>CUI</th>
+              <th>Nombre de Obra</th>
+              <th>Score</th>
+              <th>Semáforo</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (obra of datosConsolidado()?.proyectos; track obra.cui) {
+            <tr>
+              <td><strong>{{ obra.cui }}</strong></td>
+              <td>
+                <div class="text-truncate">{{ obra.nombre }}</div>
+              </td>
+              <td><strong>{{ obra.score_riesgo }} pts</strong></td>
+              <td>
+                <!-- 🎨 CORRECCIÓN: Inyección estricta de clases dinámicas para pintar el semáforo -->
+                <span class="badge-semaforo" [class]="'color-' + obra.semaforo.toLowerCase()">
+                  {{ obra.semaforo }}
+                </span>
+              </td>
+              <td>
+                <button class="btn-action-trigger" (click)="seleccionarObraParaDiagnostico(obra.cui)">
+                  🧠 Ver CBR
+                </button>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Módulo 3: Visor de Diagnóstico Analógico (Split Screen Repotenciado) -->
+  <div class="psc-card">
+    <h4>🔄 Módulo 3: Visor de Diagnóstico Analógico (Split Screen)</h4>
+
+    @if (proyectoSeleccionado(); as select) {
+    <div class="split-screen-wrapper">
+
+      <!-- Lado Izquierdo: Caso de Estudio Actual -->
+      <div class="split-left">
+        <h5>📂 Caso Actual Bajo Evaluación</h5>
+        <div class="data-group-panel">
+          <p><strong>CUI del Proyecto:</strong> <span class="highlight-txt">{{ select.cui }}</span></p>
+          <p><strong>Nombre Técnico:</strong> {{ select.nombre }}</p>
+          <p><strong>Ubicación Territorial:</strong> {{ select.departamento }}</p>
+          <p><strong>Score de Estrés:</strong> <span class="badge-score">{{ select.score_riesgo }} Puntos</span></p>
+          <p><strong>Estado Actual SSP:</strong> <span class="badge-state">{{ select.estado_ssp }}</span></p>
+        </div>
+      </div>
+
+      <!-- Lado Derecho: Analogía Histórica CBR Recuperada -->
+      <div class="split-right">
+        <h5>🧠 Caso Análogo Recuperado (Memoria Episódica)</h5>
+        @if (select.caso_analogo_cui != null && select.caso_analogo_cui > 0) {
+        <div class="data-group-panel">
+          <p><strong>CUI Referencial Histórico:</strong> <span class="highlight-txt-green">{{ select.caso_analogo_cui
+              }}</span></p>
+          <p><strong>Patrón de Falla Indexado:</strong> <span class="text-danger font-weight-bold">{{
+              select.falla_historica }}</span></p>
+        </div>
+
+        <div class="alert-prescription">
+          <h6>📌 Acción Correctiva Prescriptiva Sugerida (ACT-R Output):</h6>
+          <p>{{ select.recomendacion }}</p>
+        </div>
+
+        <div class="action-buttons-group">
+          <!-- Ejecuta la validación directa heredando la recomendación automatizada -->
+          <button class="btn-validate"
+            (click)="procesarGobernanzaHumana(select.cui, 'VALIDADO', (select.recomendacion != null ? select.recomendacion : ''))">
+            ✅ Validar Recomendación
+          </button>
+
+          <!-- Simula un ajuste de parámetros en la bitácora legal por el usuario -->
+          <button class="btn-adjust"
+            (click)="procesarGobernanzaHumana(select.cui, 'AJUSTADO', 'Se prioriza conciliación técnica descentralizada con la UEI')">
+            🔧 Ajustar y Ejecutar
+          </button>
+        </div>
+        } @else {
+        <div class="dashed-placeholder" style="margin-top: 20px; padding: 20px;">
+          Este proyecto posee un score controlado en la Matriz. No requiere activación del motor probabilístico KNN.
+        </div>
+        }
+      </div>
+
+    </div>
+    } @else {
+    <div class="dashed-placeholder">
+      Seleccione una obra en el mapa o en el ranking superior para activar las compuertas de la memoria episódica.
+    </div>
+    }
+  </div>
+
+  } @else {
+  <!-- VISTA B: PORTAL DE ADMINISTRACIÓN COGNITIVA (MÓDULOS DE METACONOCIMIENTO) -->
+  <div class="admin-grid-layout">
+
+    <!-- Módulo 1: Configuración de Memoria Procedimental -->
+    <div class="psc-card admin-module-card">
+      <div class="module-badge pro-badge">🧠 Módulo Metacognitivo</div>
+      <h4>🛠️ Módulo 1: Calibración de Memoria Procedimental (Reglas de Producción)</h4>
+      <p class="admin-description">
+        Permite al Ingeniero del Conocimiento ajustar la plasticidad y sensibilidad de las heurísticas de producción
+        (reglas IF-THEN) en tiempo real.
+        Esto asegura la adaptación del sistema ante fluctuaciones macroeconómicas o cambios normativos en el MVCS sin
+        alterar el código base.
+      </p>
+
+      <div class="form-group-admin mt-4">
+        <label class="form-label-bold">Heurística Activa: Umbral de Estrés por Desbalance Físico-Financiero</label>
+        <div class="range-flex">
+          <input type="range" class="form-range" min="10" max="50" [ngModel]="pesoDesbalance()"
+            (ngModelChange)="pesoDesbalance.set($event)">
+          <span class="badge-pts">+{{ pesoDesbalance() }} pts</span>
+        </div>
+        <small class="text-muted d-block mt-1">Regula el peso de penalización cuando el avance financiero acumulado
+          supera al avance físico real.</small>
+      </div>
+
+      <div class="form-group-admin mt-4 bg-code-panel">
+        <h6>Sub-Buffer de Compilación de Reglas In-Memory</h6>
+        <textarea class="form-control-custom font-monospace" rows="3"
+          placeholder="IF (Obra.meses_sin_avance > 2) -> THEN Alerta.color = ROJO; font_impact = 35;"></textarea>
+
+        <!-- El botón heredará inmediatamente la clase .btn-cognitive con flotado ordenado -->
+        <button class="btn-cognitive mt-2 btn-sm-admin">⚡ Compilar Nueva Heurística</button>
+        <div class="clearfix-admin"></div>
+      </div>
+    </div>
+
+    <!-- Módulo 2: Curaduría de Memoria Episódica -->
+    <div class="psc-card admin-module-card">
+      <div class="module-badge epi-badge">📥 Fase Retain (CBR)</div>
+      <h4>📥 Módulo 2: Curaduría de Memoria Episódica (Ciclo de Aprendizaje)</h4>
+      <p class="admin-description">
+        Gestiona la base de conocimiento histórica (los 33 casos base iniciales). Implementa formalmente la fase de
+        **Retención (Retain)** del ciclo CBR:
+        cuando un especialista valida o ajusta una solución en el campo, este módulo indexa la experiencia exitosa como
+        un nuevo caso en la memoria de largo plazo para futuros emparejamientos KNN.
+      </p>
+
+      <div class="form-group-admin mt-3">
+        <label>Código Único de Inversión (CUI) del Nuevo Caso:</label>
+        <input type="number" class="form-control-custom" [ngModel]="nuevoCasoCui()"
+          (ngModelChange)="nuevoCasoCui.set($event)" placeholder="Ej. 2403837">
+      </div>
+
+      <div class="form-group-admin mt-3">
+        <label>Bitácora Técnica / Resolución Homologada en Campo:</label>
+        <textarea class="form-control-custom" rows="3" [ngModel]="nuevoCasoResolucion()"
+          (ngModelChange)="nuevoCasoResolucion.set($event)"
+          placeholder="Escriba el desglose de las acciones legales o contractuales de mitigación que destrabaron la obra..."></textarea>
+      </div>
+
+      <button class="btn-cognitive-admin" (click)="ejecutarRetencionCBR()">
+        📁 Indexar Experiencia en Biblioteca de Memoria
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Módulo 3: Visualizador Ontológico en la Base Ancha -->
+  <div class="psc-card mt-4">
+    <div class="module-badge ont-badge">🕸️ Grafo de Red Semántica</div>
+    <h4>🕸️ Módulo 3: Visualizador Ontológico Structural (Grafo de Conocimiento)</h4>
+    <p class="admin-description">
+      Mapeo de la Memoria Declarativa del PSC. Representa las tripletas de conocimiento estructurado (Inversión ──
+      registra ──► Valorización)
+      para auditar si el motor cognitivo sufre de sesgos o si existen cuellos de botella en la red de dependencias
+      contractuales.
+    </p>
+
+    <div class="graph-canvas mt-3">
+      <div>
+        <p style="margin: 0; font-size: 1rem;">[Proyecto: CUI] ──(registra)──► [Valorizaciones] ──(contrasta)──►
+          [Cronograma Físico Real]</p>
+      </div>
+    </div>
+  </div>
+  }
+</div>
