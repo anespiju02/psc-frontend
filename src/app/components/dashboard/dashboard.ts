@@ -1,6 +1,6 @@
-import { Component, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { Component, inject, OnInit, PLATFORM_ID, signal, ViewEncapsulation } from '@angular/core';
 import { EvolucinCognitivaService, RespuestaPSC, ResumenDashboard } from '../../api/generated';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class Dashboard implements OnInit {
   private readonly pscApi = inject(EvolucinCognitivaService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   vistaActiva = signal<'OPERATIVO' | 'ADMINISTRACION'>('OPERATIVO');
 
@@ -27,7 +28,9 @@ export class Dashboard implements OnInit {
   nuevoCasoResolucion = signal<string>('');
 
   ngOnInit(): void {
-    this.cargarDatosConsolidados();
+    if (isPlatformBrowser(this.platformId)) {
+      this.cargarDatosConsolidados();
+    }
   }
 
   cargarDatosConsolidados(): void {
