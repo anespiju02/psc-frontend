@@ -8,6 +8,7 @@ configuration.ts
 encoder.ts
 git_push.sh
 index.ts
+model/detallePuntaje.ts
 model/hTTPValidationError.ts
 model/locationInner.ts
 model/models.ts

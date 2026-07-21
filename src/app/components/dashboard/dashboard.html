@@ -136,8 +136,25 @@
           <p><strong>CUI del Proyecto:</strong> <span class="highlight-txt">{{ select.cui }}</span></p>
           <p><strong>Nombre Técnico:</strong> {{ select.nombre }}</p>
           <p><strong>Ubicación Territorial:</strong> {{ select.departamento }}</p>
-          <p><strong>Score de Estrés:</strong> <span class="badge-score">{{ select.score_riesgo }} Puntos</span></p>
           <p><strong>Estado Actual SSP:</strong> <span class="badge-state">{{ select.estado_ssp }}</span></p>
+          <p><strong>Score Total de Estrés:</strong> <span class="badge-score">{{ select.score_riesgo }} Puntos</span>
+          </p>
+        </div>
+
+        <div class="score-breakdown-panel mt-3">
+          <h6>🔎 Auditoría de Asignación de Puntaje (Motor Heurístico ACT-R):</h6>
+          <ul class="breakdown-list">
+            @for (item of select.desglose_score; track item.criterio) {
+            <li class="breakdown-item">
+              <span class="factor-pts">+{{ item.puntos }} pts</span>
+              <span class="factor-desc">{{ item.criterio }}</span>
+            </li>
+            } @empty {
+            <li class="breakdown-item-clean">
+              ✅ No se detectaron anomalías o penalizaciones severas en el expediente.
+            </li>
+            }
+          </ul>
         </div>
       </div>
 

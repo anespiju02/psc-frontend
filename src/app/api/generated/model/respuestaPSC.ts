@@ -7,6 +7,7 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
+import { DetallePuntaje } from './detallePuntaje';
 
 
 export interface RespuestaPSC { 
@@ -21,5 +22,6 @@ export interface RespuestaPSC {
     recomendacion?: string;
     latitud: number;
     longitud: number;
+    desglose_score?: Array<DetallePuntaje>;
 }
 
